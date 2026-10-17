@@ -262,7 +262,7 @@ fun Soal2View() {
                 level = 44,
                 imageRes = R.drawable.rogue,
                 currentHp = 820,
-                maxHp = 2000,
+                maxHp = 900,
                 currentMp = 380,
                 maxMp = 550,
                 cp = 4680,
@@ -333,6 +333,15 @@ fun Soal2View() {
         "Rogue (3)",
         "Cleric (4)")
 
+    val filteredHeroes = heroes.filter { hero ->
+        val categoryName = selectedFilterCategory.split(" ").first()
+        val matchesCategory = categoryName == "All" || hero.roleCategory.equals(categoryName, ignoreCase = true)
+        val matchesSearch = searchQuery.isEmpty() ||
+                hero.name.contains(searchQuery, ignoreCase = true) ||
+                hero.titleClass.contains(searchQuery, ignoreCase = true)
+        matchesCategory && matchesSearch
+    }
+
     val squadHeroes = heroes.filter { it.inSquad }
     val totalSquadCp = squadHeroes.sumOf { it.cp }
 
@@ -348,7 +357,7 @@ fun Soal2View() {
         ) {
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Header Title Row
+            // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -368,7 +377,7 @@ fun Soal2View() {
                     )
                 }
 
-                // Expedition Badge Button
+                // Expedition
                 Box(
                     modifier = Modifier
                         .clip(CircleShape)
@@ -390,7 +399,6 @@ fun Soal2View() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Expedition Squad Box (Top Banner)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -435,7 +443,6 @@ fun Soal2View() {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // 4 Squad Slots
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
@@ -471,7 +478,6 @@ fun Soal2View() {
                             }
                         }
 
-                        // Deploy Button
                         Button(
                             onClick = {
                                 Toast.makeText(context, "Deploying Squad into battle!", Toast.LENGTH_SHORT).show()
@@ -481,8 +487,8 @@ fun Soal2View() {
                             modifier = Modifier.height(44.dp)
                         ) {
                             Text(
-                                text = "Deploy ⚡",
-                                fontSize = 13.sp,
+                                text = "Deploy",
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = BgDark
                             )
@@ -493,7 +499,7 @@ fun Soal2View() {
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Search Bar Input
+
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
@@ -529,7 +535,6 @@ fun Soal2View() {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Horizontal Filter Chips Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -562,7 +567,6 @@ fun Soal2View() {
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // Sort Button
                 Box(
                     modifier = Modifier
                         .clip(CircleShape)
@@ -584,8 +588,7 @@ fun Soal2View() {
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Hero List (LazyColumn)
-            if (heroes.isEmpty()) {
+            if (filteredHeroes.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -604,7 +607,7 @@ fun Soal2View() {
                     modifier = Modifier.weight(1f)
                 ) {
                     items(
-                        items = heroes,
+                        items = filteredHeroes,
                         key = { it.id }
                     ) { hero ->
                         HeroCard(
@@ -662,7 +665,6 @@ fun HeroCard(
             .padding(14.dp)
     ) {
         Column {
-            // Top Badges Row: Mythic + Class + CP + IN SQUAD
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -672,7 +674,6 @@ fun HeroCard(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Rarity Badge
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
@@ -687,7 +688,6 @@ fun HeroCard(
                         )
                     }
 
-                    // Class Badge
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
@@ -734,12 +734,10 @@ fun HeroCard(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Main Content Row: Sprite Avatar on Left, Info & Bars on Right
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Character Sprite Box
                 Box(
                     modifier = Modifier
                         .size(68.dp)
@@ -753,7 +751,6 @@ fun HeroCard(
                         modifier = Modifier.size(54.dp)
                     )
 
-                    // Level Badge at bottom
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
@@ -772,11 +769,9 @@ fun HeroCard(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                // Info & Bars Column
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
-                    // Name + Expand Arrow
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -799,7 +794,6 @@ fun HeroCard(
 
                     Spacer(modifier = Modifier.height(6.dp))
 
-                    // HP Bar Row
                     BarRow(
                         label = "HP",
                         current = hero.currentHp,
@@ -810,7 +804,6 @@ fun HeroCard(
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    // MP Bar Row
                     BarRow(
                         label = "MP",
                         current = hero.currentMp,
@@ -821,12 +814,10 @@ fun HeroCard(
                 }
             }
 
-            // Expanded Dropdown Section (Bonus Requirement)
             AnimatedVisibility(visible = hero.isExpanded) {
                 Column {
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // 4 Stat Cards Row (ATK, DEF, CRIT, SPD)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -839,7 +830,6 @@ fun HeroCard(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Skill Box
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -866,12 +856,10 @@ fun HeroCard(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Action Buttons Row (Heal + Squad Toggle)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // Heal Button
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -890,7 +878,6 @@ fun HeroCard(
                             )
                         }
 
-                        // Add to Squad / Remove Button
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -937,7 +924,6 @@ fun BarRow(
             modifier = Modifier.width(22.dp)
         )
 
-        // Custom Bar Track using Box
         Box(
             modifier = Modifier
                 .weight(1f)
